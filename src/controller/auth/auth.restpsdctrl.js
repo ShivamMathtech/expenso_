@@ -1,58 +1,32 @@
 const crypto = require("crypto");
 const { User } = require("../../models/user.model");
-const { generateToken } = require("../../utils/token.utils");
-// @desc    Reset password
-// @route   PUT /api/auth/reset-password/:token
-// @access  Public
+const { hashPassword } = require("../../utils/hash.utils");
+
 const resetpadctrls = async (req, res) => {
   try {
-    const { password } = req.body;
+    const { token } = req.params;
+    const { newPassword } = req.body;
 
-    if (!password) {
-      return res.status(400).json({ message: "New password is required" });
-    }
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    // 1️⃣ Hash the token from URL
-    const resetPasswordToken = crypto
-      .createHash("sha256")
-      .update(req.params.token)
-      .digest("hex");
-
-    // 2️⃣ Find user with matching token and valid expiry
     const user = await User.findOne({
-      resetPasswordToken,
-      resetPasswordExpire: { $gt: Date.now() },
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
     });
 
-    if (!user) {
-      return res
-        .status(400)
-        .json({ message: "Invalid or expired reset token" });
-    }
+    if (!user)
+      return res.status(400).json({ message: "Token invalid or expired" });
 
-    // 3️⃣ Set new password
-    user.password = password; // hashed automatically in pre-save hook
+    user.password = await hashPassword(newPassword);
     user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
+    user.resetPasswordExpires = undefined;
 
     await user.save();
 
-    // 4️⃣ Optionally, generate JWT token after reset
-    const token = generateToken(user._id);
-
-    res.status(200).json({
-      message: "Password reset successful",
-      token, // optional, so user can be logged in immediately
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
+    res.status(200).json({ message: "Password reset successfully" });
   } catch (error) {
-    console.error("Reset password error:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error(error);
+    res.status(500).json({ message: "Error resetting password" });
   }
 };
 exports.resetpadctrls = resetpadctrls;

@@ -19,6 +19,6 @@ authrouters.post("/login", loginController);
 authrouters.post("/logout", logoutController);
 authrouters.post("/refresh", refreshwebtokenController);
 authrouters.post("/forget-password", forgetpsdctrl);
-authrouters.post("/reset-password", resetpadctrls);
+authrouters.post("/reset-password/:token", resetpadctrls);
 
 module.exports = { authrouters };

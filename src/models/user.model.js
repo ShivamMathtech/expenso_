@@ -41,19 +41,14 @@ const userSchema = new mongoose.Schema(
     timestamps: true, // ✅ must be in the second argument object
   }
 );
-// Generate reset token method
-userSchema.methods.getResetPasswordToken = function () {
-  // 1️⃣ Generate token
+// Generate reset token
+userSchema.methods.generatePasswordResetToken = function () {
   const resetToken = crypto.randomBytes(20).toString("hex");
-
-  // 2️⃣ Hash token and set fields
   this.resetPasswordToken = crypto
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
-  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
-
-  // 3️⃣ Return plain token to send via email
+  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
   return resetToken;
 };
 const User = mongoose.model("User", userSchema);
