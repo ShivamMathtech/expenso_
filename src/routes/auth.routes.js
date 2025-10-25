@@ -10,8 +10,7 @@ const {
   refreshwebtokenController,
 } = require("../controller/auth/auth.refreshcontroller");
 const { forgetpsdctrl } = require("../controller/auth/auth.forgetcontroller");
-const { restPswdCtrl } = require("../controller/auth/auth.restpsdctrl");
-
+const { resetpadctrls } = require("../controller/auth/auth.restpsdctrl");
 const authrouters = express.Router();
 // Authentication Router
 
@@ -20,6 +19,6 @@ authrouters.post("/login", loginController);
 authrouters.post("/logout", logoutController);
 authrouters.post("/refresh", refreshwebtokenController);
 authrouters.post("/forget-password", forgetpsdctrl);
-authrouters.post("/reset-password", restPswdCtrl);
+authrouters.post("/reset-password", resetpadctrls);
 
 module.exports = { authrouters };
