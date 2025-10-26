@@ -1,9 +1,15 @@
 const express = require("express");
 const reportsRouter = express.Router();
-reportsRouter.get("/daily", (req, res) => {});
-reportsRouter.get("/weekly", (req, res) => {});
-reportsRouter.get("/monthly", (req, res) => {});
-reportsRouter.get("/yearly", (req, res) => {});
-reportsRouter.get("/budget", (req, res) => {});
+const reportController = require("../controller/reports/reports.controller");
+const { authMiddleware } = require("../middleware/auth.middleware");
+reportsRouter.get("/daily", authMiddleware, reportController.getDailyReport);
+reportsRouter.get("/weekly", authMiddleware, reportController.getWeeklyReport);
+reportsRouter.get(
+  "/monthly",
+  authMiddleware,
+  reportController.getMonthlyReport
+);
+reportsRouter.get("/yearly", authMiddleware, reportController.getYearlyReport);
+reportsRouter.get("/budget", authMiddleware, reportController.getBudgetReport);
 
 exports.reportsRouter = reportsRouter;
